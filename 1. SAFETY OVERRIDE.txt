@@ -1,0 +1,34 @@
+// 1. SAFETY OVERRIDE
+// If E-Stop is hit (FALSE), immediately drop to State 0
+IF NOT bEStop THEN
+    iState := 0;
+END_IF;
+
+// 2. STATE MACHINE SKELETON
+CASE iState OF
+
+    0: // STATE 0: OFF / ALARM
+        bSystemReady := FALSE;
+        
+        // If E-Stop is safe, advance to Ready
+        IF bEStop THEN
+            iState := 10;
+        END_IF;
+
+    10: // STATE 10: READY
+        bSystemReady := TRUE;
+        
+        // When operator presses Start, jump to Running
+        IF bStartButton THEN
+            iState := 20;
+        END_IF;
+
+    20: // STATE 20: RUNNING
+        // (Your motor motion commands will go inside this state later)
+        
+        // Temporary test reset: set iState back to 10 if Start is released
+        IF NOT bStartButton THEN
+            iState := 10;
+        END_IF;
+
+END_CASE;
