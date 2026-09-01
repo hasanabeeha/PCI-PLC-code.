@@ -1,0 +1,36 @@
+VAR
+    bMoveLeft      : BOOL := FALSE;
+    bMoveRight     : BOOL := FALSE;
+    bStop          : BOOL := FALSE;
+    dDistance      : DINT := 10000;
+    dSpeed         : DINT := 2000;
+    bAxisReady     : BOOL;
+    bIsMoving      : BOOL;
+    bAxisDone      AT %SM461 : BOOL;
+    bAxisBusy      AT %SM460 : BOOL;
+    bAxisStopBit   AT %SM463 : BOOL;
+    rtMoveLeft     : DFB_R_TRIG;
+    rtMoveRight    : DFB_R_TRIG;
+    dDistanceNeg   : DINT;
+END_VAR
+
+
+dDistanceNeg := -dDistance;
+
+// 1. Rising-edge detection so each press fires one move
+rtMoveLeft(CLK := bMoveLeft);
+rtMoveRight(CLK := bMoveRight);
+
+// 2. Move Right (+X) — relative move, positive distance
+IF rtMoveRight.Q AND NOT bAxisBusy THEN
+    DDRVI(dDistance, dSpeed, Y0.0, Y0.1);
+END_IF;
+
+// 3. Move Left (-X) — relative move, negative distance
+IF rtMoveLeft.Q AND NOT bAxisBusy THEN
+    DDRVI(dDistanceNeg, dSpeed, Y0.0, Y0.1);
+END_IF;
+
+// 4. Stop — sets the axis-1 stop flag, halting Y0.0 output
+bAxisStopBit := bStop;
+
